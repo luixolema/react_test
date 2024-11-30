@@ -1,7 +1,6 @@
 import {useNavigate} from "react-router-dom";
 import {Button, DatePicker, Form, Input, message} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
-import moment from "moment";
 import {CreateBookDto, useCreateBookMutation} from "../redux/booksApi.ts";
 
 const NewBook = () => {
@@ -15,11 +14,10 @@ const NewBook = () => {
         });
     };
 
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<CreateBookDto>();
 
     return (
         <div className="max-w-2xl mx-auto p-4 relative">
-            <DatePicker/>
             <Button
                 type="primary"
                 icon={<ArrowLeftOutlined/>}
@@ -32,9 +30,6 @@ const NewBook = () => {
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    publishDate: moment()
-                }}
                 onFinish={onFinish}
             >
                 <Form.Item
@@ -54,7 +49,6 @@ const NewBook = () => {
                 <Form.Item
                     label="Publish Date"
                     name="publishDate"
-                    rules={[{required: true, message: "Please select the publish date!"}]}
                 >
                     <DatePicker className="w-full"/>
                 </Form.Item>

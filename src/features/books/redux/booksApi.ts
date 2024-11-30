@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 import {PageResponse} from "../../../commun/types.ts";
+import {getToken} from "../../../commun/authToken.ts";
 
 // FIXME dosent work with vite
 let BASE_URL = (import.meta.env.BASE_URL || 'http://localhost:3000/api/v1.1/') + 'books/';
@@ -43,6 +44,13 @@ export interface CreateBookDto {
 const booksApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
+        prepareHeaders: async (headers) => {
+            const token = await getToken();
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
     tagTypes: ['books', 'bookDetails'],
     endpoints: build => ({

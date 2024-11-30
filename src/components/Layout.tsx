@@ -54,13 +54,12 @@ export const MainLayout: React.FC = () => {
     let handelSelect = (item: MenuItem) => {
         if (item?.key === 'logout') {
             logOut();
-            return;
+            return <></>
         }
         navigate(item?.key as string);
     };
 
     return (
-
         <div className="h-full w-full flex">
             {screenMap.lg && <div className="h-full">
                 <Sider className="min-h-screen" collapsible collapsed={collapsed}
@@ -68,7 +67,7 @@ export const MainLayout: React.FC = () => {
                     <Menu theme="dark" onSelect={handelSelect} defaultSelectedKeys={['1']} mode="inline" items={items}/>
                 </Sider>
             </div>}
-            <div className="min-h-screen flex-grow flex flex-col">
+            <div className="h-screen flex-grow flex flex-col overflow-auto">
                 <div className="header">
                     {!screenMap.lg &&
                         <Header className="flex-grow items-center">
@@ -99,41 +98,5 @@ export const MainLayout: React.FC = () => {
                 </div>
             </div>
         </div>
-
-        //<Layout className="h-screen">
-        //     {screenMap.lg && <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        //         <div className="demo-logo-vertical"/>
-        //         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items}/>
-        //     </Sider>}
-        //     {!screenMap.lg &&
-        //         <Header className="flex-grow items-center">
-        //             <div className="demo-logo"/>
-        //             <Menu
-        //                 onSelect={handelSelect}
-        //                 theme="dark"
-        //                 mode="horizontal"
-        //                 items={items}
-        //                 className="min-w-0 flex-grow"
-        //             />
-        //         </Header>}
-        //     <Layout className="w-full">
-        //         <Content style={{margin: '0 16px'}}>
-        //             <div
-        //                 style={{
-        //                     padding: 24,
-        //                     minHeight: 360,
-        //                     background: colorBgContainer,
-        //                     borderRadius: borderRadiusLG,
-        //                 }}
-        //             >
-        //                 {DynamicRoutes}
-        //             </div>
-        //         </Content>
-        //         <Footer className="text-center">
-        //             LEMA ©{new Date().getFullYear()} Created by Luis Ernesto Macias Avila
-        //         </Footer>
-        //     </Layout>
-        //
-        // </Layout>
-    );
+    )
 };

@@ -1,10 +1,9 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {Button, DatePicker, Form, Input, message, Modal, Spin} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
-import moment from "moment";
 import {PATHS} from "../../../commun/routes.tsx";
 import {EditBookDto, useEditBookMutation, useGetBookDetailsQuery, useRemoveBookMutation} from "../redux/booksApi.ts";
-
+import dayjs from 'dayjs';
 
 const EditBook = () => {
     const {id} = useParams<{ id: string }>();
@@ -65,8 +64,9 @@ const EditBook = () => {
                 initialValues={{
                     title: data!.title,
                     author: data!.author,
-                    publishDate: moment(data!.publishDate),
-                    description: data!.description
+                    publishDate: dayjs(data!.publishDate),
+                    description: data!.description,
+                    _id: data!._id
                 }}
                 onFinish={onFinish}
             >
