@@ -1,67 +1,52 @@
-import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, DatePicker, Form, Input, message, Modal} from "antd";
+import {Button, DatePicker, Form, Input, message, Modal, Spin} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
 import moment from "moment";
 import {PATHS} from "../../../commun/routes.tsx";
+import {EditBookDto, useEditBookMutation, useGetBookDetailsQuery, useRemoveBookMutation} from "../redux/booksApi.ts";
 
-interface Book {
-    id: string;
-    title: string;
-    author: string;
-    publishDate: string;
-    description: string;
-}
 
 const EditBook = () => {
     const {id} = useParams<{ id: string }>();
-    const [book, setBook] = useState<Book | null>(null);
-    const [loading, setLoading] = useState(true);
+    const {data, isFetching} = useGetBookDetailsQuery(id!);
     const navigate = useNavigate();
+    const [edit, {isLoading}] = useEditBookMutation();
+    const [remove] = useRemoveBookMutation();
 
-    useEffect(() => {
-        // Simulate an API request to fetch book details
-        setTimeout(() => {
-            const fetchedBook: Book = {
-                id: 'sadfasdf',
-                title: `Book ${id}`,
-                author: `Author ${id}`,
-                publishDate: `2024-11-27`,
-                description: `Description for Book ${id}`
-            };
-            setBook(fetchedBook);
-            setLoading(false);
-        }, 1000); // Simulate a 1-second delay
-    }, [id]);
-
-    const onFinish = (values: any) => {
-        setLoading(true);
-        // Simulate an API request to update book details
-        setTimeout(() => {
-            console.log("Updated book details:", values);
-            message.success("Book updated successfully!");
-            setLoading(false);
-        }, 1000); // Simulate a 1-second delay
+    const onFinish = (values: EditBookDto) => {
+        edit(values).then((response) => {
+            if (response.error) {
+                message.error("Book updated failed, please try again");
+            } else {
+                message.success("Book updated successfully!");
+            }
+        });
     };
 
     const deleteBook = () => {
         Modal.confirm({
             title: 'Are you sure you want to delete this book?',
             onOk: () => {
-                setLoading(true);
-                // Simulate an API request to delete the book
-                setTimeout(() => {
-                    console.log(`Book ${id} deleted`);
-                    message.success("Book deleted successfully!");
-                    setLoading(false);
-                    navigate(PATHS.books);
-                }, 1000); // Simulate a 1-second delay
+                remove(id!).then((response) => {
+                    if (response.error) {
+                        message.error("Book deleted failed, please try again");
+                    } else {
+                        message.success("Book deleted successfully!");
+                        navigate(PATHS.books);
+                    }
+                });
             }
         });
     };
 
-    if (!book) {
+    if (!isFetching && !data) {
         return <div className="text-center mt-20">Book not found</div>;
+    }
+
+    if (isFetching) {
+        return <div className="flex justify-center items-center h-full">
+            <Spin size="large"/>
+        </div>;
     }
 
     return (
@@ -78,13 +63,19 @@ const EditBook = () => {
             <Form
                 layout="vertical"
                 initialValues={{
-                    title: book.title,
-                    author: book.author,
-                    publishDate: moment(book.publishDate),
-                    description: book.description
+                    title: data!.title,
+                    author: data!.author,
+                    publishDate: moment(data!.publishDate),
+                    description: data!.description
                 }}
                 onFinish={onFinish}
             >
+                <Form.Item
+                    name="_id"
+                    hidden={true}
+                >
+                    <Input/>
+                </Form.Item>
                 <Form.Item
                     label="Title"
                     name="title"
@@ -113,7 +104,7 @@ const EditBook = () => {
                     <Input.TextArea rows={4}/>
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button type="primary" htmlType="submit" loading={isLoading}>
                         Save
                     </Button>
                     <Button type="default" danger onClick={deleteBook} className="ml-2">

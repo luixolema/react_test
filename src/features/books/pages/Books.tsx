@@ -1,97 +1,75 @@
-import {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Button, Card, Input, Layout, List, Pagination, Space, Spin} from "antd";
 import {PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {useLocation, useNavigate} from "react-router-dom";
 import {PATHS} from "../../../commun/routes.tsx";
+import {useAddFavoritesMutation, useGetBooksQuery, useRemoveFavoritesMutation} from "../redux/booksApi.ts";
+import {DatePipe} from "../../../commun/components/DatePipe.tsx";
+import {ErrorAlert} from "../../../commun/components/ErrorAlert.tsx";
 
 const {Content} = Layout;
 const {Search} = Input;
 
-interface Book {
-    id: string;
-    title: string;
-    author: string;
-    isFavorite: boolean;
-    publishDate: string;
-}
 
 const Books = () => {
-    const [books, setBooks] = useState<Book[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showFavorites, setShowFavorites] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(8); // Number of books per page
-    const navigate = useNavigate();
     const location = useLocation();
+    const [showFavorites, setShowFavorites] = useState(location.pathname === PATHS.favorites);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const favoritesParam = queryParams.get('favorites');
-        setShowFavorites(favoritesParam === 'true');
-    }, [location.search]);
+    const [removeFavorite] = useRemoveFavoritesMutation();
+    const [addFavorite] = useAddFavoritesMutation();
 
-    useEffect(() => {
-        const fetchBooks = async () => {
-            setLoading(true);
-            // Simulate an API request
-            setTimeout(() => {
-                const fetchedBooks: Book[] = [
-                    {id: '1', title: 'Book One', author: 'Author One', isFavorite: false, publishDate: '2021-01-01'},
-                    {id: '2', title: 'Book Two', author: 'Author Two', isFavorite: true, publishDate: '2022-02-02'},
-                    // Add more book data here
-                ];
-                const filteredBooks = showFavorites ? fetchedBooks.filter(book => book.isFavorite) : fetchedBooks;
-                setBooks(filteredBooks);
-                setLoading(false);
-            }, 1000);
-        };
-
-        fetchBooks();
-    }, [showFavorites]);
+    const {data, isFetching, error} = useGetBooksQuery({
+        query: searchTerm,
+        page: currentPage,
+        pageSize,
+        favorites: showFavorites,
+    });
 
     const handleSearch = (value: string) => {
         setSearchTerm(value);
     };
 
-    const toggleFavorite = (id: string, event: React.MouseEvent) => {
+    const toggleFavorite = (_id: string, isFavorite: boolean, event: React.MouseEvent) => {
         event.stopPropagation();
-        setBooks(books.map(book =>
-            book.id === id ? {...book, isFavorite: !book.isFavorite} : book
-        ));
+        if (isFavorite) {
+            removeFavorite({bookIds: [_id]});
+        } else {
+            addFavorite({bookIds: [_id]});
+        }
     };
 
-    const filteredBooks = books.filter(book =>
-        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    if (error) {
+        return <ErrorAlert message="An error occurred while fetching the books."></ErrorAlert>
+    }
 
     return (
         <Content className="p-4">
-            <Space className="mb-4" direction="vertical" style={{width: '100%'}}>
-                <Search
-                    placeholder="Search by author or name"
-                    onSearch={handleSearch}
-                    enterButton
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined/>}
-                        onClick={() => navigate(PATHS.newBook)}
-                        className="hidden sm:inline-flex"
-                    >
-                        Add New Book
-                    </Button>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined/>}
-                        onClick={() => navigate(PATHS.newBook)}
-                        className="sm:hidden"
+            <Space className="mb-4 w-full" direction="vertical">
+                <div className="max-w-xs flex flex-col gap-4">
+                    <Search
+                        placeholder="Search by author or name"
+                        onSearch={handleSearch}
+                        enterButton
                     />
-                    {!showFavorites && (
+                    <div className="flex flex-grow gap-1">
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined/>}
+                            onClick={() => navigate(PATHS.newBook)}
+                            className="hidden sm:inline-flex"
+                        >
+                            Add New Book
+                        </Button>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined/>}
+                            onClick={() => navigate(PATHS.newBook)}
+                            className="sm:hidden"
+                        />
                         <Button
                             type="default"
                             icon={showFavorites ? <StarFilled/> : <StarOutlined/>}
@@ -99,43 +77,46 @@ const Books = () => {
                         >
                             {showFavorites ? 'Show All' : 'Show Favorites'}
                         </Button>
-                    )}
-                </Space>
+                    </div>
+                </div>
             </Space>
-            {loading ? (
+            {isFetching ? (
                 <div className="flex justify-center items-center h-full">
                     <Spin size="large"/>
                 </div>
             ) : (
-                <>
+                data && <>
                     <List
-                        grid={{gutter: 16, xs: 1, sm: 2, md: 4}}
-                        dataSource={paginatedBooks}
+                        grid={{gutter: 16, xs: 1}}
+                        dataSource={data.items}
                         renderItem={book => (
                             <List.Item>
                                 <Card
+                                    className="w-80"
                                     title={<span className="truncate">{book.title}</span>}
                                     extra={
                                         <Button
                                             type="text"
-                                            icon={book.isFavorite ? <StarFilled className="text-yellow-500"/> :
+                                            icon={book.favorite ? <StarFilled className="text-yellow-500"/> :
                                                 <StarOutlined/>}
-                                            onClick={(event) => toggleFavorite(book.id, event)}
+                                            onClick={(event) => toggleFavorite(book._id, book.favorite, event)}
                                         />
                                     }
-                                    onClick={() => navigate(PATHS.bookDetails.replace(':id', book.id))}
+                                    onClick={() => navigate(PATHS.bookDetails.replace(':id', book._id))}
                                     style={{cursor: 'pointer'}}
                                 >
                                     <p className="truncate">{book.author}</p>
-                                    <p className="truncate">Publish Date: {book.publishDate}</p>
+                                    <p className="truncate">Publish Date: <DatePipe date={book.publishDate}/></p>
                                 </Card>
                             </List.Item>
                         )}
                     />
                     <Pagination
-                        current={currentPage}
-                        pageSize={pageSize}
-                        total={filteredBooks.length}
+                        current={data?.page || 0}
+                        pageSize={data?.pageSize || 0}
+                        total={data?.total || 0}
+                        showSizeChanger={true}
+                        pageSizeOptions={[5, 10, 20, 50]}
                         onChange={(page, pageSize) => {
                             setCurrentPage(page);
                             setPageSize(pageSize);
@@ -146,6 +127,6 @@ const Books = () => {
             )}
         </Content>
     );
-};
+}
 
 export default Books;

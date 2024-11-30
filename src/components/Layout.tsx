@@ -7,7 +7,7 @@ import {useNavigate} from "react-router-dom";
 import DynamicRoutes, {PATHS} from "../commun/routes.tsx";
 import {cognitoAuthConfig} from "../commun/cognitoConfig.ts";
 
-const {Header, Content, Footer, Sider} = Layout;
+const {Header, Sider} = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -60,29 +60,30 @@ export const MainLayout: React.FC = () => {
     };
 
     return (
-        <Layout className="h-screen w-screen">
-            {screenMap.lg &&
-                <Sider collapsible breakpoint="lg" collapsed={collapsed}
+
+        <div className="h-full w-full flex">
+            {screenMap.lg && <div className="h-full">
+                <Sider className="min-h-screen" collapsible collapsed={collapsed}
                        onCollapse={(value) => setCollapsed(value)}>
-                    <div className="demo-logo-vertical"/>
-                    <Menu theme="dark" mode="inline" items={items} onClick={handelSelect}/>
+                    <Menu theme="dark" onSelect={handelSelect} defaultSelectedKeys={['1']} mode="inline" items={items}/>
                 </Sider>
-            }
-            <Layout>
-                {!screenMap.lg &&
-                    <Header className="flex-grow items-center">
-                        <div className="demo-logo"/>
-                        <Menu
-                            onSelect={handelSelect}
-                            theme="dark"
-                            mode="horizontal"
-                            items={items}
-                            className="min-w-0 flex-grow"
-                        />
-                    </Header>
-                }
-                <Content className="my-0 mx-4">
-                    <div className="my-4 mx-0 p-6 min-h-96"
+            </div>}
+            <div className="min-h-screen flex-grow flex flex-col">
+                <div className="header">
+                    {!screenMap.lg &&
+                        <Header className="flex-grow items-center">
+                            <div className="demo-logo"/>
+                            <Menu
+                                onSelect={handelSelect}
+                                theme="dark"
+                                mode="horizontal"
+                                items={items}
+                                className="min-w-0 flex-grow"
+                            />
+                        </Header>}
+                </div>
+                <div className="flex-grow flex flex-col h-full w-full">
+                    <div className="flex-grow"
                          style={{
                              background: colorBgContainer,
                              borderRadius: borderRadiusLG,
@@ -90,11 +91,49 @@ export const MainLayout: React.FC = () => {
                     >
                         {DynamicRoutes}
                     </div>
-                </Content>
-                <Footer className="text-center">
-                    LEMA ©{new Date().getFullYear()} Created by Luis Ernesto Macias Avila
-                </Footer>
-            </Layout>
-        </Layout>
+                    <div className="footer py-3">
+                        <div className="text-center text-gray-700 font-light text-xs">
+                            LEMA ©{new Date().getFullYear()} Created by Luis Ernesto Macias Avila
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        //<Layout className="h-screen">
+        //     {screenMap.lg && <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+        //         <div className="demo-logo-vertical"/>
+        //         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items}/>
+        //     </Sider>}
+        //     {!screenMap.lg &&
+        //         <Header className="flex-grow items-center">
+        //             <div className="demo-logo"/>
+        //             <Menu
+        //                 onSelect={handelSelect}
+        //                 theme="dark"
+        //                 mode="horizontal"
+        //                 items={items}
+        //                 className="min-w-0 flex-grow"
+        //             />
+        //         </Header>}
+        //     <Layout className="w-full">
+        //         <Content style={{margin: '0 16px'}}>
+        //             <div
+        //                 style={{
+        //                     padding: 24,
+        //                     minHeight: 360,
+        //                     background: colorBgContainer,
+        //                     borderRadius: borderRadiusLG,
+        //                 }}
+        //             >
+        //                 {DynamicRoutes}
+        //             </div>
+        //         </Content>
+        //         <Footer className="text-center">
+        //             LEMA ©{new Date().getFullYear()} Created by Luis Ernesto Macias Avila
+        //         </Footer>
+        //     </Layout>
+        //
+        // </Layout>
     );
 };

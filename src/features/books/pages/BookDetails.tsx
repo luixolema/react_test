@@ -1,72 +1,58 @@
-import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {Button, Card, Modal, Spin} from "antd";
+import {Button, Card, message, Modal, Spin} from "antd";
 import {ArrowLeftOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {PATHS} from "../../../commun/routes.tsx";
-
-interface Book {
-    id: string;
-    title: string;
-    author: string;
-    isFavorite: boolean;
-    publishDate: string;
-    description: string;
-}
+import {DatePipe} from "../../../commun/components/DatePipe.tsx";
+import {
+    useAddFavoritesMutation,
+    useGetBookDetailsQuery,
+    useRemoveBookMutation,
+    useRemoveFavoritesMutation
+} from "../redux/booksApi.ts";
+import {ErrorAlert} from "../../../commun/components/ErrorAlert.tsx";
 
 const BookDetails = () => {
     const {id} = useParams<{ id: string }>();
-    const [book, setBook] = useState<Book | null>(null);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        // Simulate an API request to fetch book details
-        setTimeout(() => {
-            const fetchedBook: Book = {
-                id: `${id}`,
-                title: `Book ${id}`,
-                author: `Author ${id}`,
-                isFavorite: false,
-                publishDate: `2021-01-0`,
-                description: `Description for Book ${id}`
-            };
-            setBook(fetchedBook);
-            setLoading(false);
-        }, 1000); // Simulate a 1-second delay
-    }, [id]);
+    const {data, isFetching, error, refetch} = useGetBookDetailsQuery(id!);
+    const [addFavorites] = useAddFavoritesMutation();
+    const [removeFavorites] = useRemoveFavoritesMutation();
+    const [remove] = useRemoveBookMutation();
 
     const toggleFavorite = () => {
-        if (book) {
-            // Immediately update the UI
-            setBook({...book, isFavorite: !book.isFavorite});
-
-            // Simulate an API request to toggle favorite status
-            setTimeout(() => {
-                console.log(`Favorite status for book ${book.id} updated to ${!book.isFavorite}`);
-            }, 1000); // Simulate a 1-second delay
+        if (data?.favorite) {
+            removeFavorites({bookIds: [data._id]});
+        } else {
+            addFavorites({bookIds: [data!._id]});
         }
+        refetch();
     };
 
-    const deleteBook = () => {
+    const deleteBook = (id: string) => {
         Modal.confirm({
             title: 'Are you sure you want to delete this book?',
             onOk: () => {
-                setLoading(true);
-                // Simulate an API request to delete the book
-                setTimeout(() => {
-                    console.log(`Book ${id} deleted`);
-                    setLoading(false);
-                    navigate(PATHS.books);
-                }, 1000); // Simulate a 1-second delay
+                remove(id!).then((response) => {
+                    if (response.error) {
+                        message.error("Book deleted failed, please try again");
+                    } else {
+                        message.success("Book deleted successfully!");
+                        navigate(PATHS.books);
+                    }
+                });
             }
         });
     };
 
-    if (loading) {
+    if (error) {
+        return <ErrorAlert message="An error occurred while fetching the book details."></ErrorAlert>
+    }
+
+    if (isFetching) {
         return <Spin size="large" className="flex justify-center items-center h-screen"/>;
     }
 
-    if (!book) {
+    if (!isFetching && !data) {
         return <div className="text-center mt-20">Book not found</div>;
     }
 
@@ -80,21 +66,21 @@ const BookDetails = () => {
             >
                 Back
             </Button>
-            <Card className="shadow-lg">
+            {data && <Card className="shadow-lg">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-bold">
-                        {book.title}
+                        {data.title}
                         <Button
                             type="text"
-                            icon={book.isFavorite ? <StarFilled className="text-yellow-500"/> : <StarOutlined/>}
+                            icon={data.favorite ? <StarFilled className="text-yellow-500"/> : <StarOutlined/>}
                             onClick={toggleFavorite}
                         />
                     </h1>
                     <div>
-                        <Button type="primary" onClick={() => navigate(PATHS.editBooks.replace(':id', book.id))}>
+                        <Button type="primary" onClick={() => navigate(PATHS.editBooks.replace(':id', data._id))}>
                             Edit
                         </Button>
-                        <Button type="default" danger onClick={deleteBook} className="ml-2">
+                        <Button type="default" danger onClick={() => deleteBook(data._id)} className="ml-2">
                             Delete
                         </Button>
                     </div>
@@ -102,18 +88,18 @@ const BookDetails = () => {
                 <div className="space-y-2">
                     <div>
                         <span className="font-semibold">Author: </span>
-                        <span>{book.author}</span>
+                        <span>{data.author}</span>
                     </div>
                     <div>
                         <span className="font-semibold">Publish Date: </span>
-                        <span>{book.publishDate}</span>
+                        <span><DatePipe date={data.publishDate}/></span>
                     </div>
                     <div>
                         <span className="font-semibold">Description: </span>
-                        <span>{book.description}</span>
+                        <span>{data.description}</span>
                     </div>
                 </div>
-            </Card>
+            </Card>}
         </div>
     );
 };

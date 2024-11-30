@@ -3,7 +3,6 @@ import {Navigate, Route, Routes} from "react-router-dom";
 
 
 let Books = React.lazy(() => import("../features/books/pages/Books.tsx"));
-let Favorites = React.lazy(() => import("../features/books/pages/Favorites.tsx"));
 let RedirectLoginPage = React.lazy(() => import("../pages/RedirectLoginPage"));
 let BookDetails = React.lazy(() => import("../features/books/pages/BookDetails.tsx"));
 let Profile = React.lazy(() => import("../pages/Profile"));
@@ -12,7 +11,7 @@ let NewBook = React.lazy(() => import("../features/books/pages/NewBook.tsx"));
 
 export const PATHS = {
     books: '/books',
-    favorites: '/books?favorites=true',
+    favorites: '/books/favorites',
     bookDetails: '/books/:id',
     editBooks: '/books/edit/:id',
     loginRedirect: '/loginRedirect',
@@ -21,8 +20,8 @@ export const PATHS = {
 };
 
 const routes: { [key in keyof typeof PATHS]: LazyExoticComponent<any> } = {
+    favorites: Books,
     books: Books,
-    favorites: Favorites,
     loginRedirect: RedirectLoginPage,
     bookDetails: BookDetails,
     profile: Profile,
@@ -33,7 +32,7 @@ const routes: { [key in keyof typeof PATHS]: LazyExoticComponent<any> } = {
 
 const DynamicRoutes = (
     <Routes>
-        {Object.entries(routes).map(([key, ComponentToLoad]) => {
+        {Object.entries(routes).map(([key, ComponentToLoad], index) => {
             const path = PATHS[key as keyof typeof PATHS];
             return (
                 <Route
@@ -41,7 +40,7 @@ const DynamicRoutes = (
                     path={path}
                     element={
                         <React.Suspense fallback={<div>Loading...</div>}>
-                            <ComponentToLoad/>
+                            <ComponentToLoad key={index}/>
                         </React.Suspense>
                     }
                 />

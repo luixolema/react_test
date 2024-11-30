@@ -1,28 +1,25 @@
-import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Button, DatePicker, Form, Input, message} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
 import moment from "moment";
+import {CreateBookDto, useCreateBookMutation} from "../redux/booksApi.ts";
 
 const NewBook = () => {
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [create, {isLoading}] = useCreateBookMutation();
 
-    const onFinish = (values: any) => {
-        setLoading(true);
-        // Simulate an API request to create a new book
-        setTimeout(() => {
-            console.log("New book details:", values);
+    const onFinish = (values: CreateBookDto) => {
+        create(values).then(() => {
             message.success("Book created successfully!");
-            setLoading(false);
             form.resetFields();
-        }, 5000); // Simulate a 1-second delay
+        });
     };
 
     const [form] = Form.useForm();
 
     return (
         <div className="max-w-2xl mx-auto p-4 relative">
+            <DatePicker/>
             <Button
                 type="primary"
                 icon={<ArrowLeftOutlined/>}
@@ -68,13 +65,13 @@ const NewBook = () => {
                     <Input.TextArea rows={4}/>
                 </Form.Item>
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button type="primary" htmlType="submit" loading={isLoading}>
                         Save
                     </Button>
                 </Form.Item>
             </Form>
         </div>
     );
-};
+}
 
 export default NewBook;
