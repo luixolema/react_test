@@ -8,7 +8,7 @@ import {
     useGetBookDetailsQuery,
     useRemoveBookMutation,
     useRemoveFavoritesMutation
-} from "../redux/booksApi.ts";
+} from "../../../commun/redux/api.ts";
 import {ErrorAlert} from "../../../commun/components/ErrorAlert.tsx";
 
 const BookDetails = () => {

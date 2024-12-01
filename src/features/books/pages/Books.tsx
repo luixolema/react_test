@@ -3,7 +3,7 @@ import {Button, Card, Input, List, Pagination, Spin} from "antd";
 import {PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {useLocation, useNavigate} from "react-router-dom";
 import {PATHS} from "../../../commun/routes.tsx";
-import {useAddFavoritesMutation, useGetBooksQuery, useRemoveFavoritesMutation} from "../redux/booksApi.ts";
+import {useAddFavoritesMutation, useGetBooksQuery, useRemoveFavoritesMutation} from "../../../commun/redux/api.ts";
 import {DatePipe} from "../../../commun/components/DatePipe.tsx";
 import {ErrorAlert} from "../../../commun/components/ErrorAlert.tsx";
 
@@ -85,7 +85,7 @@ const Books = () => {
                 </div>
             ) : (
                 data && <div className="flex flex-col">
-                    <div className="flex-grow overflow-y-auto overflow-x-hidden" style={{maxHeight: '70%'}}>
+                    <div className="flex-grow">
                         <List
                             grid={{gutter: 16, xs: 1}}
                             dataSource={data.items}

@@ -1,11 +1,8 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
-import {PageResponse} from "../../../commun/types.ts";
-import {getToken} from "../../../commun/authToken.ts";
+import {PageResponse} from "../types.ts";
+import {getToken} from "../authToken.ts";
 
-// FIXME dosent work with vite
-let BASE_URL = (import.meta.env.BASE_URL || 'http://localhost:3000/api/v1.1/') + 'books/';
-BASE_URL = 'http://localhost:3000/api/v1.1/';
-
+let BASE_URL = import.meta.env.VITE_API_URL;
 
 export interface Book {
     _id: string;
@@ -41,7 +38,7 @@ export interface CreateBookDto {
     publishDate: Date;
 }
 
-const booksApi = createApi({
+const api = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
         prepareHeaders: async (headers) => {
@@ -118,6 +115,6 @@ export const {
     useRemoveBookMutation,
     useCreateBookMutation,
     useEditBookMutation
-} = booksApi;
+} = api;
 
-export default booksApi;
+export default api;

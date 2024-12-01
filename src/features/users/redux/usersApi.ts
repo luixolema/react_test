@@ -12,7 +12,7 @@
 //     bookIds: string[];
 // }
 //
-// const booksApi = createApi({
+// const api = createApi({
 //     baseQuery: fetchBaseQuery({
 //         baseUrl: BASE_URL,
 //     }),
@@ -33,6 +33,6 @@
 //     }),
 // })
 //
-// export const {useGetBooksQuery, useGetBookDetailsQuery} = booksApi;
+// export const {useGetBooksQuery, useGetBookDetailsQuery} = api;
 //
-// export default booksApi;
+// export default api;

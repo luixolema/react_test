@@ -2,7 +2,12 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Button, DatePicker, Form, Input, message, Modal, Spin} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
 import {PATHS} from "../../../commun/routes.tsx";
-import {EditBookDto, useEditBookMutation, useGetBookDetailsQuery, useRemoveBookMutation} from "../redux/booksApi.ts";
+import {
+    EditBookDto,
+    useEditBookMutation,
+    useGetBookDetailsQuery,
+    useRemoveBookMutation
+} from "../../../commun/redux/api.ts";
 import dayjs from 'dayjs';
 
 const EditBook = () => {

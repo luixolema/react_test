@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import {Button, DatePicker, Form, Input, message} from "antd";
 import {ArrowLeftOutlined} from '@ant-design/icons';
-import {CreateBookDto, useCreateBookMutation} from "../redux/booksApi.ts";
+import {CreateBookDto, useCreateBookMutation} from "../../../commun/redux/api.ts";
 
 const NewBook = () => {
     const navigate = useNavigate();
