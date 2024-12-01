@@ -8,8 +8,12 @@ const NewBook = () => {
     const [create, {isLoading}] = useCreateBookMutation();
 
     const onFinish = (values: CreateBookDto) => {
-        create(values).then(() => {
-            message.success("Book created successfully!");
+        create(values).then((response) => {
+            if (response.error) {
+                message.error("Book creation failed, please try again");
+            } else {
+                message.success("Book created successfully!");
+            }
             form.resetFields();
         });
     };

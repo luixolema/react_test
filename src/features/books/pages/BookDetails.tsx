@@ -14,7 +14,7 @@ import {ErrorAlert} from "../../../commun/components/ErrorAlert.tsx";
 const BookDetails = () => {
     const {id} = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const {data, isFetching, error, refetch} = useGetBookDetailsQuery(id!);
+    const {data, isFetching, error} = useGetBookDetailsQuery(id!);
     const [addFavorites] = useAddFavoritesMutation();
     const [removeFavorites] = useRemoveFavoritesMutation();
     const [remove] = useRemoveBookMutation();
@@ -25,7 +25,6 @@ const BookDetails = () => {
         } else {
             addFavorites({bookIds: [data!._id]});
         }
-        refetch();
     };
 
     const deleteBook = (id: string) => {

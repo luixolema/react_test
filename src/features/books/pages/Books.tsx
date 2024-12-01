@@ -46,8 +46,8 @@ const Books = () => {
     }
 
     return (
-        <div className="p-4 h-full flex flex-col">
-            <div className="mb-4 w-full h-1/6">
+        <div className="p-4 flex h-full flex-col">
+            <div className="pb-4 w-full">
                 <div className="max-w-xs flex flex-col gap-4">
                     <Search
                         placeholder="Search by author or name"
@@ -79,56 +79,55 @@ const Books = () => {
                     </div>
                 </div>
             </div>
-            {isFetching ? (
-                <div className="flex justify-center items-center h-full">
-                    <Spin size="large"/>
-                </div>
-            ) : (
-                data && <div className="flex flex-col">
-                    <div className="flex-grow">
-                        <List
-                            grid={{gutter: 16, xs: 1}}
-                            dataSource={data.items}
-                            renderItem={book => (
-                                <List.Item>
-                                    <Card
-                                        className="w-80"
-                                        title={<span className="truncate">{book.title}</span>}
-                                        extra={
-                                            <Button
-                                                type="text"
-                                                icon={book.favorite ? <StarFilled className="text-yellow-500"/> :
-                                                    <StarOutlined/>}
-                                                onClick={(event) => toggleFavorite(book._id, book.favorite, event)}
-                                            />
-                                        }
-                                        onClick={() => navigate(PATHS.bookDetails.replace(':id', book._id))}
-                                        style={{cursor: 'pointer'}}
-                                    >
-                                        <p className="truncate">{book.author}</p>
-                                        <p className="truncate">Publish Date: <DatePipe date={book.publishDate}/></p>
-                                    </Card>
-                                </List.Item>
-                            )}
-                        />
-                        <div className="flex-grow"></div>
+            <div className="h-full overflow-x-hidden">
+                {isFetching &&
+                    <div className="flex justify-center items-center h-full">
+                        <Spin size="large"/>
                     </div>
-                    <Pagination
-                        current={data?.page || 0}
-                        pageSize={data?.pageSize || 0}
-                        total={data?.total || 0}
-                        showSizeChanger={true}
-                        pageSizeOptions={[5, 10, 20, 50]}
-                        onChange={(page, pageSize) => {
-                            setCurrentPage(page);
-                            setPageSize(pageSize);
-                        }}
-                        className="mt-4 float-end"
-                    />
-                </div>
-            )}
+                }
+                {!isFetching && data && <List
+                    grid={{gutter: 16, xs: 1}}
+                    dataSource={data.items}
+                    renderItem={book => (
+                        <List.Item key={book!._id}>
+                            <Card
+                                className="w-80"
+                                title={<span className="truncate">{book.title}</span>}
+                                extra={
+                                    <Button
+                                        type="text"
+                                        icon={book.favorite ? <StarFilled className="text-yellow-500"/> :
+                                            <StarOutlined/>}
+                                        onClick={(event) => toggleFavorite(book._id, book.favorite, event)}
+                                    />
+                                }
+                                onClick={() => navigate(PATHS.bookDetails.replace(':id', book._id))}
+                                style={{cursor: 'pointer'}}
+                            >
+                                <p className="truncate">{book.author}</p>
+                                <p className="truncate">Publish Date: <DatePipe date={book.publishDate}/></p>
+                            </Card>
+                        </List.Item>
+                    )}
+                />}
+            </div>
+            <div className="flex-grow"></div>
+            <div className="pt-4">
+                {data && data?.total > 5 && <Pagination
+                    current={data?.page || 0}
+                    pageSize={data?.pageSize || 0}
+                    total={data?.total || 0}
+                    showSizeChanger={true}
+                    pageSizeOptions={[5, 10, 20, 50]}
+                    onChange={(page, pageSize) => {
+                        setCurrentPage(page);
+                        setPageSize(pageSize);
+                    }}
+                    className="float-end"
+                />}
+            </div>
         </div>
-    );
+    )
 }
 
 export default Books;

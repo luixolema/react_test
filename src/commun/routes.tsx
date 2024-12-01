@@ -32,7 +32,7 @@ const routes: { [key in keyof typeof PATHS]: LazyExoticComponent<any> } = {
 
 const DynamicRoutes = (
     <Routes>
-        {Object.entries(routes).map(([key, ComponentToLoad], index) => {
+        {Object.entries(routes).map(([key, ComponentToLoad]) => {
             const path = PATHS[key as keyof typeof PATHS];
             return (
                 <Route
@@ -40,7 +40,7 @@ const DynamicRoutes = (
                     path={path}
                     element={
                         <React.Suspense fallback={<div>Loading...</div>}>
-                            <ComponentToLoad key={index}/>
+                            <ComponentToLoad/>
                         </React.Suspense>
                     }
                 />

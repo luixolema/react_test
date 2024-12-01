@@ -8,8 +8,8 @@ export interface Book {
     _id: string;
     title: string;
     author: string;
-    description: string;
-    publishDate: string;
+    description?: string;
+    publishDate?: string;
 }
 
 export interface BookWithFavorite extends Book {
